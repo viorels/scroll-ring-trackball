@@ -315,10 +315,10 @@ void encoder_task(void) {
     uint16_t val2 = adc_read();
 
     int state1 = prev_state1;
-    if (val1 > 2670) {
+    if (val1 > 2400) {
         state1 = 1;
     }
-    if (val1 < 1602) {
+    if (val1 < 1900) {
         state1 = -1;
     }
 
