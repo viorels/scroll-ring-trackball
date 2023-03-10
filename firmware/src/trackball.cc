@@ -62,12 +62,12 @@ uint button_pins[NBUTTONS] = { 16, 19, 17, 18 };
 #define SENSOR0_MISO 4
 #define SENSOR0_MOSI 3
 #define SENSOR0_SCK 2
-#define SENSOR0_NCS 9
+#define SENSOR0_NCS 1
 
 #define HALL_SENSOR1_PIN 26
 #define HALL_SENSOR2_PIN 27
-#define HALL_SENSOR1_INPUT 0
-#define HALL_SENSOR2_INPUT 1
+#define HALL_SENSOR1_INPUT 1
+#define HALL_SENSOR2_INPUT 0
 
 #define V_RESOLUTION_BITMASK (1 << 0)
 #define H_RESOLUTION_BITMASK (1 << 2)
