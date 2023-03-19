@@ -30,6 +30,7 @@
 
 #include <bsp/board.h>
 #include <tusb.h>
+#include <time.h>
 
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
@@ -470,6 +471,9 @@ void hid_task() {
         button_pressed = 0;
     }
 
+    //Scale rand()'s return value against RAND_MAX using doubles instead of a pure modulus to have a mor
+    int random_delay = 1 + (int)((1.0 + interval) * rand() / ( RAND_MAX + 1.0 ) );
+
     if (next_move_time == 0 || now_ms > next_move_time) {
         current_motion[0] = motion[step][0];
         current_motion[1] = motion[step][1];
@@ -477,7 +481,7 @@ void hid_task() {
         gpio_put(PICO_DEFAULT_LED_PIN, get_bootsel_button() ^ PICO_DEFAULT_LED_PIN_INVERTED);
 
         step = (step + 1) % 4;
-        next_move_time = now_ms + interval * 1000;
+        next_move_time = now_ms + random_delay * 1000;
     }
 
     if (!juggler_enabled) {
@@ -609,6 +613,9 @@ int main() {
     pins_init();
     sensor_init();
     tusb_init();
+
+    // Uniquelly seed srand
+    srand(time(0));
 
     while (true) {
         tud_task();  // tinyusb device task
