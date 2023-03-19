@@ -1,6 +1,7 @@
 // derived from https://github.com/mrjohnk/PMW3360DM-T2QU
 
 #include <hardware/gpio.h>
+#include "pico/stdlib.h"
 
 #include "pmw3360.h"
 

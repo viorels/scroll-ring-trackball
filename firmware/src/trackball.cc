@@ -313,6 +313,7 @@ void encoder_task(void) {
     uint16_t val1 = adc_read();
     adc_select_input(HALL_SENSOR2_INPUT);
     uint16_t val2 = adc_read();
+    printf("%d %d\n", val1, val2);
 
     int state1 = prev_state1;
     if (val1 > 2400) {

@@ -15,3 +15,6 @@ target_include_directories(trackball PRIVATE src)
 target_link_libraries(trackball pico_stdlib hardware_spi hardware_flash hardware_adc tinyusb_device tinyusb_board)
 
 pico_add_extra_outputs(trackball)
+
+pico_enable_stdio_usb(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
