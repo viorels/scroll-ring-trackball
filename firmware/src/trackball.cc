@@ -343,6 +343,39 @@ void encoder_task(void) {
     prev_state1 = state1;
 }
 
+#include "hardware/structs/ioqspi.h"
+#include "hardware/structs/sio.h"
+
+bool __no_inline_not_in_flash_func(get_bootsel_button)() {
+    const uint CS_PIN_INDEX = 1;
+
+    // Must disable interrupts, as interrupt handlers may be in flash, and we
+    // are about to temporarily disable flash access!
+    uint32_t flags = save_and_disable_interrupts();
+
+    // Set chip select to Hi-Z
+    hw_write_masked(&ioqspi_hw->io[CS_PIN_INDEX].ctrl,
+                    GPIO_OVERRIDE_LOW << IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_LSB,
+                    IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_BITS);
+
+    // Note we can't call into any sleep functions in flash right now
+    for (volatile int i = 0; i < 1000; ++i);
+
+    // The HI GPIO registers in SIO can observe and control the 6 QSPI pins.
+    // Note the button pulls the pin *low* when pressed.
+    bool button_state = !(sio_hw->gpio_hi_in & (1u << CS_PIN_INDEX));
+
+    // Need to restore the state of chip select, else we are going to have a
+    // bad time when we return to code in flash!
+    hw_write_masked(&ioqspi_hw->io[CS_PIN_INDEX].ctrl,
+                    GPIO_OVERRIDE_NORMAL << IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_LSB,
+                    IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_BITS);
+
+    restore_interrupts(flags);
+
+    return button_state;
+}
+
 void hid_task() {
     if (!tud_hid_ready()) {
         return;
@@ -408,9 +441,57 @@ void hid_task() {
 
     prev_pin_state = pin_state;
 
-    sensor.update();
+    // JUGGLER code here !!!
+
+    int s = 10;          // motion in pixels
+    int interval = 5;   // delay in seconds
+    static bool juggler_enabled = true;
+
+    static int step = 0;
+    int motion[4][2] = {
+        {s, s},
+        {s, -s},
+        {-s, -s},
+        {-s, s},
+    };
+    int current_motion[2] = {0, 0};
+
+    gpio_put(PICO_DEFAULT_LED_PIN, juggler_enabled ^ PICO_DEFAULT_LED_PIN_INVERTED);
+
+    static long next_move_time = 0;
+    long now_ms = to_ms_since_boot(get_absolute_time());
+
+    static long button_pressed = 0;
+    if (get_bootsel_button() && !button_pressed) {
+        button_pressed = now_ms;
+        juggler_enabled = !juggler_enabled;
+    }
+    if (!get_bootsel_button() && button_pressed && (now_ms - button_pressed > 50)) {
+        button_pressed = 0;
+    }
+
+    if (next_move_time == 0 || now_ms > next_move_time) {
+        current_motion[0] = motion[step][0];
+        current_motion[1] = motion[step][1];
+
+        gpio_put(PICO_DEFAULT_LED_PIN, get_bootsel_button() ^ PICO_DEFAULT_LED_PIN_INVERTED);
+
+        step = (step + 1) % 4;
+        next_move_time = now_ms + interval * 1000;
+    }
+
+    if (!juggler_enabled) {
+        return;
+    }
+
+    // sensor.update();
     for (int axis = 0; axis < 2; axis++) {
-        int16_t movement = sensor.movement[axis];
+
+
+        // int16_t movement = sensor.movement[axis];
+        int16_t movement = current_motion[axis];
+
+
         BallFunction ball_function =
             shifted ? config.ball_shifted_function[axis] : config.ball_function[axis];
         if (static_cast<int>(ball_function) < 0) {
