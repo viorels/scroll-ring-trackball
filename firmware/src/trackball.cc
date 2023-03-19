@@ -56,7 +56,7 @@
 #define CONFIG_OFFSET_IN_FLASH (PRESUMED_FLASH_SIZE - FLASH_SECTOR_SIZE)
 #define FLASH_CONFIG_IN_MEMORY (((uint8_t*) XIP_BASE) + CONFIG_OFFSET_IN_FLASH)
 
-uint button_pins[NBUTTONS] = { 16, 19, 17, 18 };
+uint button_pins[NBUTTONS] = { 23, 7, 28, 6 };    // 23 = user/boot button
 
 #define SENSOR0_SPI spi0
 #define SENSOR0_MISO 4
@@ -66,8 +66,8 @@ uint button_pins[NBUTTONS] = { 16, 19, 17, 18 };
 
 #define HALL_SENSOR1_PIN 26
 #define HALL_SENSOR2_PIN 27
-#define HALL_SENSOR1_INPUT 1
-#define HALL_SENSOR2_INPUT 0
+#define HALL_SENSOR1_INPUT 0
+#define HALL_SENSOR2_INPUT 1
 
 #define V_RESOLUTION_BITMASK (1 << 0)
 #define H_RESOLUTION_BITMASK (1 << 2)
