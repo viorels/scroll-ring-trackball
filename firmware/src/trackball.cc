@@ -44,8 +44,8 @@
 
 // These IDs are bogus. If you want to distribute any hardware using this,
 // you will have to get real ones.
-#define USB_VID 0xCAFE
-#define USB_PID 0xBAFA
+#define USB_VID 0x046d
+#define USB_PID 0xc542
 
 #define CONFIG_VERSION 1
 #define CONFIG_SIZE 22
@@ -184,8 +184,8 @@ uint8_t const desc_configuration[] = {
 
 char const* string_desc_arr[] = {
     (const char[]){ 0x09, 0x04 },  // 0: is supported language is English (0x0409)
-    "RP2040+PMW3360",              // 1: Manufacturer
-    "Trackball",                   // 2: Product
+    "Logitech, Inc.",              // 1: Manufacturer
+    "M185 compact wireless mouse",                   // 2: Product
 };
 
 struct __attribute__((packed)) hid_report_t {
