@@ -445,7 +445,7 @@ void hid_task() {
     // JUGGLER code here !!!
 
     int s = 1;          // motion in pixels
-    int interval = 10;  // delay in seconds
+    int interval = 42;  // delay in seconds
     static bool juggler_enabled = true;
 
     static int step = 0;
