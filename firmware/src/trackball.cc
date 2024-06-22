@@ -42,6 +42,10 @@
 #include "crc.h"
 #include "pmw3360.h"
 
+#ifndef PICO_DEFAULT_LED_PIN
+#include "pico/cyw43_arch.h"
+#endif
+
 // These IDs are bogus. If you want to distribute any hardware using this,
 // you will have to get real ones.
 #define USB_VID 0x046d
@@ -457,7 +461,12 @@ void hid_task() {
     };
     int current_motion[2] = {0, 0};
 
+    // check if Pico, otherwise Pico W uses LED through wifi module
+#ifdef PICO_DEFAULT_LED_PIN
     gpio_put(PICO_DEFAULT_LED_PIN, juggler_enabled ^ PICO_DEFAULT_LED_PIN_INVERTED);
+#else
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, juggler_enabled);
+#endif
 
     static long next_move_time = 0;
     long now_ms = to_ms_since_boot(get_absolute_time());
@@ -478,7 +487,11 @@ void hid_task() {
         current_motion[0] = motion[step][0];
         current_motion[1] = motion[step][1];
 
+#ifdef PICO_DEFAULT_LED_PIN
         gpio_put(PICO_DEFAULT_LED_PIN, get_bootsel_button() ^ PICO_DEFAULT_LED_PIN_INVERTED);
+#else
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, get_bootsel_button());
+#endif
 
         step = (step + 1) % 4;
         next_move_time = now_ms + random_delay * 1000;
@@ -613,6 +626,10 @@ int main() {
     pins_init();
     sensor_init();
     tusb_init();
+
+#ifndef PICO_DEFAULT_LED_PIN
+    cyw43_arch_init();   // only on PicoW
+#endif
 
     // Uniquelly seed srand
     srand(time(0));

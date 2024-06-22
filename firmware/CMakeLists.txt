@@ -12,7 +12,7 @@ add_executable(trackball src/trackball.cc src/pmw3360.cc src/srom.cc src/crc.cc)
 
 target_include_directories(trackball PRIVATE src)
 
-target_link_libraries(trackball pico_stdlib hardware_spi hardware_flash hardware_adc tinyusb_device tinyusb_board)
+target_link_libraries(trackball pico_stdlib hardware_spi hardware_flash hardware_adc tinyusb_device tinyusb_board pico_cyw43_arch_none)
 
 pico_add_extra_outputs(trackball)
 
